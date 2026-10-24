@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-25
+
+### Changed
+
+- When a project lacks the `:cljfmt` or `:test` alias, `/electric-fix` now shows the alias definition to add, as its dry step already does for `:dry4clj`.
+- The Companion packages table describes biff-skills as covering Biff 2 conventions and deployment, because that package no longer scaffolds projects.
+
+### Removed
+
+- The `/electric-new` scaffolding skill is removed. It wrote a fixed project layout with pinned dependency versions, and only a typed slash command could start it. New projects start from a clone of the official [electric3-starter-app](https://github.com/hyperfiddle/electric3-starter-app), and the `electric` skill's project workflow reference describes its layout.
+
 ## [0.1.0] - 2026-10-24
 
 ### Added

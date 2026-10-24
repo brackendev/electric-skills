@@ -2,7 +2,7 @@
 
 [Electric](https://github.com/hyperfiddle/electric) v3 full-stack reactive framework skills packaged as an [APM](https://github.com/microsoft/apm) plugin. One install deploys the full set to every runtime in APM's default target set: Claude Code, Codex, OpenCode, Cursor, Copilot, Gemini, Windsurf, Kiro, and Grok Build. Antigravity is supported by naming it explicitly with `--target antigravity`.
 
-Skills follow the [Agent Skills](https://agentskills.io) open standard. Two auto-trigger from conversation context (`electric`, `electric-lenses`). The rest appear as slash commands. The agent can also run `/electric-fix` from a natural-language request. `/electric-new` runs only as a typed slash command. Runtimes differ in how they offer these commands: Codex lists them under `/skills` and runs them as `$name`, OpenCode attaches them with `@name`, and Gemini CLI does not read the user-only setting, so its agent can start any of them.
+Skills follow the [Agent Skills](https://agentskills.io) open standard. Two auto-trigger from conversation context (`electric`, `electric-lenses`). The other one, `/electric-fix`, is a slash command, and the agent can also run it from a natural-language request. Runtimes differ in how they offer this command: Codex lists it under `/skills` and runs it as `$name`, OpenCode attaches it with `@name`, and Gemini CLI also offers the auto-triggered skills as slash commands.
 
 This package layers on top of three companions: the host-neutral [clojure-skills](https://github.com/brackendev/clojure-skills) baseline, [clojurescript-skills](https://github.com/brackendev/clojurescript-skills) for the ClojureScript client, and [clojure-jvm-skills](https://github.com/brackendev/clojure-jvm-skills) for the JVM Clojure server. Install all four together so the `clojure` skill handles cross-dialect style, the `clojurescript` skill handles JavaScript interop and the shadow-cljs workflow, the `clojure-jvm` skill handles Java interop and the Clojure CLI / `tools.build` workflow, and this package adds Electric-aware siting, network transfer, tables, reactive state, DOM and events, transactions, forms, and the starter-app project workflow.
 
@@ -15,7 +15,7 @@ Seven sibling APM packages. This package layers on top of [clojure-skills](https
 | [clojure-skills](https://github.com/brackendev/clojure-skills) | Host-neutral [Clojure](https://clojure.org/) family baseline: style, naming, threading, collections, atoms, dispatch, formatting, namespaces, and testing. Triggers on `.clj`, `.cljs`, `.cljc`, `.cljd`. | — |
 | [clojure-jvm-skills](https://github.com/brackendev/clojure-jvm-skills) | [Clojure](https://clojure.org/) on the JVM: Java interop, refs / agents / STM, `with-open`, JVM-typed exceptions, `alter-var-root`, and the Clojure CLI / `tools.build` / `clj-kondo` / `cljfmt` / `test-runner` / nREPL workflow. | `clojure-skills` |
 | [clojurescript-skills](https://github.com/brackendev/clojurescript-skills) | [ClojureScript](https://clojurescript.org/) style and tooling: JavaScript interop, externs inference, macro stage separation, `catch :default`, JS-flavored numbers and truthiness, and the `cljs.main` workflow. Triggers on `.cljs`, `.cljc` compiled to JS, `shadow-cljs.edn`, `figwheel-main.edn`. | `clojure-skills` |
-| [biff-skills](https://github.com/brackendev/biff-skills) | [Biff](https://biffweb.com/) 2 web framework on the JVM: scaffolding, conventions, deployment. | `clojure-skills` + `clojure-jvm-skills` |
+| [biff-skills](https://github.com/brackendev/biff-skills) | [Biff](https://biffweb.com/) 2 web framework on the JVM: conventions and deployment. | `clojure-skills` + `clojure-jvm-skills` |
 | [electric-skills](https://github.com/brackendev/electric-skills) (this package) | [Electric](https://github.com/hyperfiddle/electric) v3 full-stack reactive framework: `e/defn` components, `e/client` / `e/server` site transfer, `e/for` over `e/diff-by`, `e/watch` state, `e/Token` transactions, `e/Offload`, the `electric-dom3` and `electric-forms5` APIs, and the single-JVM shadow-cljs workflow. Triggers on `hyperfiddle.electric3`, `hyperfiddle.electric-dom3`, `e/defn`, `e/client`, `e/server`, and `com.hyperfiddle/electric`. | `clojure-skills` + `clojurescript-skills` + `clojure-jvm-skills` |
 | [fulcro-skills](https://github.com/brackendev/fulcro-skills) | [Fulcro](https://github.com/fulcrologic/fulcro) 3 full-stack framework: `defsc` components, idents and the normalized client database, mutations, `df/load!`, dynamic routing, forms, UI state machines, Fulcro Inspect, and the Pathom 3 server. Triggers on `com.fulcrologic.fulcro.*`, `com.fulcrologic.rad.*`, `com.wsscode.pathom3.*`, `defsc`, `defmutation`, `defrouter`, `df/load!`, and ident vectors. | `clojure-skills` + `clojurescript-skills` + `clojure-jvm-skills` |
 | [clojuredart-skills](https://github.com/brackendev/clojuredart-skills) | [ClojureDart](https://github.com/Tensegritics/ClojureDart) on [Flutter](https://flutter.dev/): Dart interop, type hints, `cljd.flutter` directives, async, FFI, REPL, and the Flutter project workflow. Triggers on `.cljd`, `cljd.flutter`. | `clojure-skills` |
@@ -45,12 +45,11 @@ Update later with `apm update [-g]`. Remove with `apm uninstall brackendev/elect
 ## Requirements
 
 - [Clojure CLI](https://clojure.org/guides/install_clojure) and Java 17 or higher for any skill in this package. The official starter app's Dockerfile builds on Java 17.
-- [Git](https://git-scm.com/) for `/electric-new`, which clones the [electric3-starter-app](https://github.com/hyperfiddle/electric3-starter-app).
 - [clojure-skills](https://github.com/brackendev/clojure-skills) installed alongside, for the host-neutral baseline plus `/clj-fix` and `/clj-smells-fix`.
 - [clojurescript-skills](https://github.com/brackendev/clojurescript-skills) installed alongside, for the ClojureScript-specific guidance the `electric` skill defers to (JavaScript interop, externs, macro stage separation, JS numerics, the `shadow-cljs` workflow).
 - [clojure-jvm-skills](https://github.com/brackendev/clojure-jvm-skills) installed alongside, for the JVM-specific guidance the Electric server defers to (Java interop, JVM exceptions, refs / agents / STM, the Clojure CLI / `tools.build` / `clj-kondo` / `cljfmt` / `test-runner` / nREPL workflow).
 - [clj-kondo](https://github.com/clj-kondo/clj-kondo) for the lint steps in the user-invoked skills below.
-- The `electric-fix` dry step requires a [dry4clj](https://github.com/unclebob/dry4clj) `:dry4clj` alias in `deps.edn`. dry4clj is not published to Clojars, so the alias uses a Git coordinate, as in the `/electric-new` scaffold.
+- The `electric-fix` dry step requires a [dry4clj](https://github.com/unclebob/dry4clj) `:dry4clj` alias in `deps.edn`. dry4clj is not published to Clojars, so the alias uses a Git coordinate. Without the alias, the dry step reports that it was skipped and shows the alias to add.
 - An Electric license that fits your use. Electric v3 is not open source: it is free for bootstrappers and non-commercial use and otherwise commercial (see the [license change announcement](https://tana.pub/lQwRvGRaQ7hM/electric-v3-license-change)). The first development build of a project prints a login link that you follow once. Production and CI builds do not ask for a login.
 
 ## Command guide
@@ -59,22 +58,13 @@ A quick guide to every slash command. The detailed entries under [Skills](#skill
 
 | Command | Use it when | What it does |
 |---------|-------------------|--------------|
-| `/electric-new` | Starting a new Electric project | Clones the official starter app, renames it, pins the latest Electric release, and adds lint, format, test, and dry4clj support |
 | `/electric-fix` | Lint, format, tests, or the production build need attention | Runs the fix pipeline, rewriting files in the format step with `cljfmt fix` |
 
 ## Skills
 
 User-invocable skills in this package share an argument grammar, scope vocabulary, and mutation-as-default rule. See [CONVENTIONS.md](CONVENTIONS.md) for the full standard.
 
-### Scaffolding and quality
-
-#### `/electric-new <project-name>`
-
-Scaffold a new Electric v3 project from the official [electric3-starter-app](https://github.com/hyperfiddle/electric3-starter-app): a `.cljc` program with a ClojureScript client and a Clojure JVM server, a single-JVM development entry point with hot code reloading, and a production build. Renames the starter namespace and paths, pins `com.hyperfiddle/electric` to the latest Clojars release, adds `:test`, `:cljfmt`, and `:dry4clj` aliases with a sample test and clj-kondo configuration, and verifies the production build, lint, formatting, and tests. It never starts the development server, because the first development build asks you to log in.
-
-```bash
-/electric-new my-app
-```
+### Quality
 
 #### `/electric-fix [lint|format|test|advanced|dry] [--report] [all]`
 

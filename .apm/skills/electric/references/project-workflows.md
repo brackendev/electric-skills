@@ -8,7 +8,7 @@ The shadow-cljs and JVM specifics covered here are framework-specific. The host-
 
 ## Project Layout
 
-The starter app, as scaffolded by `/electric-new` with the namespace `my-app`:
+A new Electric project starts as a clone of the official [`electric3-starter-app`](https://github.com/hyperfiddle/electric3-starter-app). Its layout, with the starter namespace renamed to `my-app`:
 
 ```
 deps.edn                         # dependencies and the :dev, :prod, :build, :jetty9 aliases
@@ -113,7 +113,7 @@ clj-kondo --copy-configs --dependencies --lint "$(clj -A:dev -Spath)"
 clj-kondo --lint src test
 ```
 
-The export maps `hyperfiddle.electric3/defn`, `fn`, `declare`, `for`, and `cursor` to their `clojure.core` equivalents. Two kinds of warnings remain in the unmodified starter's `src`, and the `/electric-new` configuration addresses both precisely:
+The export maps `hyperfiddle.electric3/defn`, `fn`, `declare`, `for`, and `cursor` to their `clojure.core` equivalents. Two kinds of warnings remain in the unmodified starter's `src`, and these `.clj-kondo/config.edn` entries exclude both precisely:
 
 ```clojure
 {:config-in-call {hyperfiddle.electric3/client {:linters {:unresolved-namespace {:exclude [js]}}}}

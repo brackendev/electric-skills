@@ -43,7 +43,7 @@ Report-only mode suppresses intentional source and project-configuration edits. 
 
 Only the literal token `--report` enables report-only mode. Natural-language phrases ("preview", "dry run", "rehearse") are scope input or step keywords, not mode triggers. A skill that conflates them is wrong.
 
-Command suffixes reinforce the default. The family follows a noun-first `<target>-<verb>` pattern, so the trailing verb signals behavior. Skills with suffix `-fix`, `-new`, `-upgrade` (verbs that imply action) mutate by default. In this package they are `/electric-fix` and `/electric-new`. Skills with suffix `-review` (a reading verb) are pure-report, and this package has none.
+Command suffixes reinforce the default. The family follows a noun-first `<target>-<verb>` pattern, so the trailing verb signals behavior. Skills with suffix `-fix`, `-new`, `-upgrade` (verbs that imply action) mutate by default. In this package that is `/electric-fix`. Skills with suffix `-review` (a reading verb) are pure-report, and this package has none.
 
 ### Rule 4: vendored and generated paths are excluded by default
 
@@ -66,7 +66,7 @@ The boundary statement: Rule 4 applies to mutating skills that discover candidat
 
 **Reporting.** The skill includes a single "skipped N vendored or generated paths" line in its results when the filter excluded any path. Under `--report`, the skill emits the full list so the operator can audit scope.
 
-**Scope of Rule 4 in this plugin.** Applies to `/electric-fix`, which discovers candidate files from the workspace. Exempt: `/electric-new` is scaffolding, and its target set is the cloned starter app, not workspace discovery. The `advanced` step of `/electric-fix` writes the client build output under `resources/public/<app>/js/` and `resources/electric-manifest.edn`. Build-artifact writes are out of scope for Rule 4 because the rule governs source mutation, not compiler outputs.
+**Scope of Rule 4 in this plugin.** Applies to `/electric-fix`, which discovers candidate files from the workspace. The `advanced` step of `/electric-fix` writes the client build output under `resources/public/<app>/js/` and `resources/electric-manifest.edn`. Build-artifact writes are out of scope for Rule 4 because the rule governs source mutation, not compiler outputs.
 
 The file-aware mutating skills include a one-line reference to Rule 4 in their own `## Mutation` or `## Scope` section.
 
@@ -85,7 +85,6 @@ A skill is classified by its actual behavior, not by its name. If the name and b
 | Skill                   | Class           | `--report` available? | Notes |
 |-------------------------|-----------------|------------------------|-------|
 | `/electric-fix`         | Mutating        | Yes                    | `format` step runs `cljfmt fix` by default. `--report` replaces it with `cljfmt check`. `lint`, `test`, `advanced`, and `dry` are pure-read of source regardless. The `advanced` step writes the client build output under `resources/public/<app>/js/` and `resources/electric-manifest.edn` (build artifacts, not source). |
-| `/electric-new`         | Mutating        | No                     | Clones and renames the starter app. Preview the side effects by reading `SKILL.md`. |
 
 The model-only reference skills (`electric`, `electric-lenses`) have no argument surface and are not classified here.
 
@@ -115,18 +114,9 @@ The section name `## Customization` is retired.
 
 The skill writes source when the `format` step runs without `--report`. With `--report`, the format step runs `cljfmt check`, which reports diffs without writing. The other four steps (`lint`, `test`, `advanced`, `dry`) are pure-read of source regardless. The `advanced` step writes build output under `resources/public/<app>/js/` and `resources/electric-manifest.edn` (the `build-client` production build). That is a build artifact, not a source mutation, and is unaffected by `--report`. The `## Mutation` section in the skill body documents this asymmetry.
 
-### `/electric-new` -- mutating skill, exemption from `all`/path rows
-
-```
-/electric-new my-app               # creates project tree at ./my-app
-/electric-new                      # prompts the operator for a project name
-```
-
-`<project-name>` is a required positional argument. The skill omits the `all` and `<path>` rows because they would not be meaningful for scaffolding. It also omits `--report` because preview is meaningless: the operator reads `SKILL.md` to see what files will be written. The exemption is listed below.
-
 ## Exemptions
 
-`/electric-new` accepts a required positional `<project-name>` because no useful default exists for scaffolding. It omits the `all` and `<path>` scope rows and the `--report` flag for the same reason. The `## Arguments` table in its `SKILL.md` documents the positional grammar.
+No skill in this plugin claims an exemption today. The standard exemption pattern, for reference, is a scaffolding skill that accepts a required positional `<project-name>` because no useful default exists. Such a skill omits the `all` and `<path>` scope rows and the `--report` flag for the same reason, and the `## Arguments` table in its `SKILL.md` documents the positional grammar.
 
 ## Ambiguity notes
 

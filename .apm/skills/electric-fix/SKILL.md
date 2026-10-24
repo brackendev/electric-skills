@@ -67,7 +67,7 @@ If the project has no `test/` directory, lint `src` only. The starter's `src-dev
 
 Report pass if exit code is 0 and there are no errors. Show the clj-kondo output regardless.
 
-Without the Electric exports, `e/defn`, `e/fn`, and `e/for` forms generate false positives. Two kinds of warnings are expected in an Electric project that lacks the configuration `/electric-new` writes: "Unresolved namespace js" for `js/` interop inside `e/client` (clj-kondo also analyzes `.cljc` files as Clojure) and "unused binding ring-request" in `electric-boot`. Report them with the fix rather than editing source:
+Without the Electric exports, `e/defn`, `e/fn`, and `e/for` forms generate false positives. Two kinds of warnings are expected in an Electric project whose `.clj-kondo/config.edn` lacks the matching exclusions: "Unresolved namespace js" for `js/` interop inside `e/client` (clj-kondo also analyzes `.cljc` files as Clojure) and "unused binding ring-request" in `electric-boot`. Report them with the fix rather than editing source:
 
 ```clojure
 {:config-in-call {hyperfiddle.electric3/client {:linters {:unresolved-namespace {:exclude [js]}}}}
@@ -90,7 +90,12 @@ clj -M:cljfmt check
 
 Report pass if exit code is 0, fail otherwise. Show any formatting changes (under `fix`) or the diff (under `check`).
 
-The starter's `.cljfmt.edn` sets `:indents {#re ".*" [[:inner 0]]}`, which replaces every default cljfmt rule with Tonsky two-space indentation. Electric upstream asks for that style, so do not report the catch-all `:indents` entry as a misconfiguration. If the project has no `:cljfmt` alias, report `format: SKIPPED` with the alias from `/electric-new` rather than inventing a command.
+The starter's `.cljfmt.edn` sets `:indents {#re ".*" [[:inner 0]]}`, which replaces every default cljfmt rule with Tonsky two-space indentation. Electric upstream asks for that style, so do not report the catch-all `:indents` entry as a misconfiguration. If the project has no `:cljfmt` alias, report `format: SKIPPED` and show the alias to add under `:aliases` rather than inventing a command:
+
+```clojure
+:cljfmt {:extra-deps {dev.weavejester/cljfmt {:mvn/version "0.16.6"}}
+         :main-opts  ["-m" "cljfmt.main"]}
+```
 
 ### 3. Test
 
@@ -100,7 +105,16 @@ Run the JVM test suite:
 clj -X:test
 ```
 
-Use `clj -X:test` when the `:test` alias defines `:exec-fn`, and `clj -M:test` when it defines only `:main-opts`. If `deps.edn` has no `:test` alias, report `test: SKIPPED` and name the alias that `/electric-new` adds. Report pass if the runner exits 0 and the output contains no failure or error summary. Show the runner output.
+Use `clj -X:test` when the `:test` alias defines `:exec-fn`, and `clj -M:test` when it defines only `:main-opts`. If `deps.edn` has no `:test` alias, report `test: SKIPPED` and show the alias to add under `:aliases`:
+
+```clojure
+:test {:extra-paths ["test"]
+       :extra-deps  {io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+       :main-opts   ["-m" "cognitect.test-runner"]
+       :exec-fn     cognitect.test-runner.api/test}
+```
+
+Report pass if the runner exits 0 and the output contains no failure or error summary. Show the runner output.
 
 Requiring a namespace that contains Electric functions compiles them on the JVM, so a test that requires the application's entry namespace also catches Electric compile errors. Electric has no documented public harness for running Electric functions in tests. Upstream's own tests use `hyperfiddle.rcf` and `hyperfiddle.electric-local-def3`, so run those only when the project already uses them.
 
