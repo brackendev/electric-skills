@@ -1,0 +1,8 @@
+interface:
+  display_name: "Electric Fix"
+  short_description: "Fix an Electric project (lint, format, test, advanced, dry). Writes formatting by default."
+  default_prompt: "Run /electric-fix on this project."
+  brand_color: "#B7A4C2"
+
+policy:
+  allow_implicit_invocation: true

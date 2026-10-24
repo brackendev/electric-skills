@@ -1,0 +1,8 @@
+interface:
+  display_name: "Electric"
+  short_description: "Hyperfiddle Electric v3: e/defn, e/client and e/server siting, e/for over e/diff-by, e/watch, e/Token, e/Offload, electric-dom3, forms, serialization, and the single-JVM workflow."
+  default_prompt: "Review this Electric code for idiomatic siting, table, state, and transaction patterns."
+  brand_color: "#B7A4C2"
+
+policy:
+  allow_implicit_invocation: true

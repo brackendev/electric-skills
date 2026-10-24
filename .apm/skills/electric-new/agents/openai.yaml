@@ -1,0 +1,8 @@
+interface:
+  display_name: "Scaffold an Electric Project"
+  short_description: "Scaffold a new Electric v3 project from the official starter app with a pinned Electric release."
+  default_prompt: "Scaffold a new Electric project."
+  brand_color: "#B7A4C2"
+
+policy:
+  allow_implicit_invocation: false
