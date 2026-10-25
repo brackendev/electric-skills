@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-10-25
+
+### Added
+
+- The `electric` skill opens with Iron Laws (ELEC-1 through ELEC-5): numbered rules that prevent runtime failures, frozen controls, and security holes. The agent does not write code that breaks a law, and when existing code breaks one, it reports the law ID, the location, and the correct pattern, then asks before changing code outside the task. Three Key Rules (capitalized Electric function names, serializable values across sites, and `e/Offload` for blocking work) moved into the laws, and the remaining Key Rules are renumbered. Two new laws require spending every `e/Token` and siting security decisions on the server.
+
 ## [0.1.1] - 2026-10-25
 
 ### Changed
