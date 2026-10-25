@@ -6,6 +6,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-10-25
+
+### Added
+
+- The `electric` skill explains why Electric projects keep ClojureScript 1.11.121 and shadow-cljs 2.26.2. With the newest ClojureScript, the production client build succeeds, but the server, the tests, and the development REPL cannot load Electric code. The skill lists the newer ClojureScript features that Electric client code cannot use, and it tells the agent not to upgrade either library until an Electric release supports a newer ClojureScript.
+- The project workflow reference shows how to read the ClojureScript version that an Electric release declares, and which checks must pass before a project moves to a newer ClojureScript.
+- The `electric` skill names the compile error that a `binding` of an ordinary Clojure dynamic var produces in Electric code.
+- The project layout lists the starter's logging configuration files and its two manual test scripts, and warns that the scripts start the development build or wait for keyboard input, so the agent does not run them.
+
+### Changed
+
+- The `deps.edn` example uses Clojure 1.12.6, Ring 1.15.6, Logback 1.6.6, and tools.build 0.10.14. These versions pass the starter app's production build and JVM tests with Electric `v3-alpha-ca05cbc93`.
+- The skills tell the agent to pin the newest Electric release and never to depend on `v3-alpha-SNAPSHOT`, even though the upstream README and the starter app use it.
+- The README states that Hyperfiddle publishes Electric v3 only as alpha releases and that the package targets the newest published alpha release.
+- `/electric-fix` formats with the first cljfmt runner the project supports: a `:cljfmt` alias, the `lein-cljfmt` plugin, a `cljfmt` binary on `PATH`, or a `cljfmt` Clojure CLI tool. When none is installed, the format step reports that it was skipped and shows the `:cljfmt` alias to add. The step also explains which configuration files cljfmt reads and how to pass paths to each runner.
+- The `:cljfmt` alias that `/electric-fix` and the project workflow reference show uses `:replace-deps`, so a project dependency that conflicts with cljfmt or cannot be resolved does not stop formatting.
+- The `/electric-fix` signature lists the path and glob arguments that its arguments table already accepted: `/electric-fix [lint|format|test|advanced|dry] [--report] [all|<path>|<glob>]`.
+- Every command that the skills give starts with `clojure` instead of `clj`, for example `clojure -X:test`, `clojure -X:build:prod build-client`, and the development server command `clojure -A:dev -X dev/-main`. The `clj` launcher exits with an error when `rlwrap` is not installed.
+
+### Fixed
+
+- The lint notes name both functions in the starter that leave `ring-request` unused, which explains all three warnings that clj-kondo reports in the unmodified starter.
+- The `/electric-fix` dry step lists `.cljd` among the file types that dry4clj scans by default.
+- The `:dry4clj` alias that `/electric-fix` shows aligns its continuation lines, so the alias passes `cljfmt check` once it is pasted into `deps.edn`.
+- The `/electric-fix` format step looks for a cljfmt runner before it runs cljfmt. It listed the `clj -M:cljfmt` commands first and the alias check after them, so the agent could run a command that fails without the alias before it checked.
+- The `/electric-fix` dry step reports `SKIPPED`, the term that the other steps and the summary use. It said `SKIP`.
+
+### Removed
+
+- Guidance for Electric v2: the v2 to v3 comparison table, the v2 trigger terms in the `electric` skill description, and the v2 migration notes in `electric-lenses` and the README.
+- The notes about forms namespaces that came before `electric-forms5`. The `electric` skill now describes only `electric-forms5`.
+
 ## [0.1.2] - 2026-10-25
 
 ### Added

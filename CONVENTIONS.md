@@ -84,7 +84,7 @@ A skill is classified by its actual behavior, not by its name. If the name and b
 
 | Skill                   | Class           | `--report` available? | Notes |
 |-------------------------|-----------------|------------------------|-------|
-| `/electric-fix`         | Mutating        | Yes                    | `format` step runs `cljfmt fix` by default. `--report` replaces it with `cljfmt check`. `lint`, `test`, `advanced`, and `dry` are pure-read of source regardless. The `advanced` step writes the client build output under `resources/public/<app>/js/` and `resources/electric-manifest.edn` (build artifacts, not source). |
+| `/electric-fix`         | Mutating        | Yes                    | `format` step runs `cljfmt fix` by default, through the first cljfmt runner the project supports. `--report` replaces it with `cljfmt check`. `lint`, `test`, `advanced`, and `dry` are pure-read of source regardless. The `advanced` step writes the client build output under `resources/public/<app>/js/` and `resources/electric-manifest.edn` (build artifacts, not source). |
 
 The model-only reference skills (`electric`, `electric-lenses`) have no argument surface and are not classified here.
 
@@ -106,6 +106,7 @@ The section name `## Customization` is retired.
 /electric-fix                     # all five steps; format writes
 /electric-fix lint                # lint only (pure-read; no source writes)
 /electric-fix format              # format step; writes via cljfmt fix
+/electric-fix format src/my_app   # format step on src/my_app only
 /electric-fix lint test           # combined step keywords
 /electric-fix --report            # all five steps; format reads via cljfmt check
 /electric-fix format --report     # format step; no source writes
@@ -128,7 +129,7 @@ No skill in this plugin claims an exemption today. The standard exemption patter
 
 **Step keywords versus scope keywords.** A skill like `/electric-fix` accepts step keywords (`lint`, `format`, `test`, `advanced`, `dry`) that select work to run, and scope keywords (`all`) that widen scope. Step keywords are skill-specific and listed in the skill's own table. Scope keywords are shared and listed here. When a skill has both, the `## Arguments` table lists both in separate rows.
 
-**Tool-level flags the skill calls internally.** A skill may invoke a tool that itself uses POSIX flags (for example, `clj-kondo --lint`, `cljfmt fix`, `cljfmt check`, `clj -X:build:prod build-client`, `git clone --depth 1`, `clj -P`, `curl -sSL`). Those are tool-level flags, not skill flags, and do not count against rule 1. The skill body should disambiguate when a tool flag could be mistaken for a skill flag.
+**Tool-level flags the skill calls internally.** A skill may invoke a tool that itself uses POSIX flags (for example, `clj-kondo --lint`, `cljfmt fix`, `cljfmt check`, `clojure -X:build:prod build-client`, `git clone --depth 1`, `clojure -P`, `curl -sSL`). Those are tool-level flags, not skill flags, and do not count against rule 1. The skill body should disambiguate when a tool flag could be mistaken for a skill flag.
 
 ## Author checklist
 

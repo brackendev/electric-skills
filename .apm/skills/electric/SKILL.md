@@ -8,14 +8,13 @@ description: >-
   e/server, e/for, e/diff-by, e/watch, e/amb, e/Token, e/Offload,
   e/boot-server, e/boot-client, dom/On, and dom/props; deps.edn containing
   com.hyperfiddle/electric; shadow-cljs.edn with the
-  hyperfiddle.electric.shadow-cljs.hooks3/reload-clj build hook; legacy
-  Electric v2 code (hyperfiddle.electric, hyperfiddle.electric-dom2,
-  e/for-by, new on an Electric function); or any mention of Electric Clojure,
-  Electric v3, or Hyperfiddle. Covers Electric function definition and the
-  capitalization rule, the three siting rules and network transfer, tables
-  and e/amb, local state with atoms and e/watch, electric-dom3, events,
-  transactions with e/Token, background work with e/Offload, forms,
-  serialization, server setup, and the single-JVM development workflow.
+  hyperfiddle.electric.shadow-cljs.hooks3/reload-clj build hook; or any
+  mention of Electric Clojure, Electric v3, or Hyperfiddle. Covers Electric
+  function definition and the capitalization rule, the three siting rules
+  and network transfer, tables and e/amb, local state with atoms and
+  e/watch, electric-dom3, events, transactions with e/Token, background work
+  with e/Offload, forms, serialization, server setup, and the single-JVM
+  development workflow.
 user-invocable: false
 ---
 
@@ -29,7 +28,7 @@ Layered on top of three baselines:
 
 This skill applies when the code uses Electric v3 (`hyperfiddle.electric3`). It owns the framework-specific deltas: Electric function definition, client and server siting, network transfer, tables, reactive state, `electric-dom3`, events, `e/Token` transactions, `e/Offload`, forms, serialization, server setup, and the starter-app project shape (`deps.edn` + `shadow-cljs.edn` + `src-dev/dev.cljc`).
 
-This skill reflects Electric v3 release `v3-alpha-ca05cbc93` on Clojars (published 2026-05-19) and the official [`electric3-starter-app`](https://github.com/hyperfiddle/electric3-starter-app). Electric v3 is an alpha. The upstream changelog says minor breaking changes are allowed, and releases are named `v3-alpha-<git sha>`, so the version string does not show which release is newer. Clojars is the only release channel: GitHub has no releases, and the GitHub `master` branch lags the published jar. When an API detail matters, read the source inside the released jar, which is the authoritative reference for the version in use.
+This skill reflects Electric v3 release `v3-alpha-ca05cbc93` on Clojars (published 2026-05-19) and the official [`electric3-starter-app`](https://github.com/hyperfiddle/electric3-starter-app). Electric v3 is an alpha. The upstream changelog says minor breaking changes are allowed, and releases are named `v3-alpha-<git sha>`, so the version string does not show which release is newer. Clojars is the only release channel: GitHub has no releases, and the GitHub `master` branch lags the published jar. Pin the newest release by its full version string. Never depend on `v3-alpha-SNAPSHOT`, even though the upstream README, the changelog, and the starter's `deps.edn` use it: a SNAPSHOT changes without notice, so builds stop being reproducible. When an API detail matters, read the source inside the released jar, which is the authoritative reference for the version in use.
 
 Upstream documentation: the [Tutorial and reference](https://docs.google.com/document/d/1frkb5URGFZUdWyCDl9moGFcPcLuDtW-M-HnCJOHkuDA/) document, the live examples at [electric.hyperfiddle.net](https://electric.hyperfiddle.net/), the example sources in [`electric-fiddle`](https://github.com/hyperfiddle/electric-fiddle) under `src/electric_tutorial/`, and the [changelog document](https://docs.google.com/document/d/17BE7xpV9bFoPq9scLJHCF8hD5gBm00K0Up45N3XeG5c/).
 
@@ -60,7 +59,7 @@ These rules prevent runtime failures, frozen controls, and security holes in Ele
 11. **Parse DOM input values.** Input events deliver strings, even for `<input type="number">`. Parse with `parse-long`, `parse-double`, or `js/parseFloat` before computing with them.
 12. **Develop in one JVM.** The Clojure REPL and the shadow-cljs compiler must share a single JVM, which the starter achieves by starting shadow-cljs from `src-dev/dev.cljc`. A second shadow-cljs process lets the client and server programs diverge, with undefined behavior.
 13. **Set inline styles with `dom/props`.** `(dom/props {:style {:color :red}})` sets inline styles. `dom/style` creates a `<style>` element, which is what the upstream examples use for page CSS.
-14. **Use `binding` only on Electric dynamic vars.** Declare them with `e/declare` (as `dom/node` and `e/http-request` are declared) and bind them with `binding` inside Electric code. Electric does not convey these bindings into host interop on its own. `e/*bindings*` holds bindings intended for host interop, and its docstring shows a `With-electric-bindings` helper that rebinds them around a Clojure function.
+14. **Use `binding` only on Electric dynamic vars.** Declare them with `e/declare` (as `dom/node` and `e/http-request` are declared) and bind them with `binding` inside Electric code. Binding a Clojure `^:dynamic` var in Electric code fails to compile with "[*x*] is not an electric var". Electric does not convey these bindings into host interop on its own. `e/*bindings*` holds bindings intended for host interop, and its docstring shows a `With-electric-bindings` helper that rebinds them around a Clojure function.
 
 ## Electric functions
 
@@ -77,7 +76,7 @@ These rules prevent runtime failures, frozen controls, and security holes in Ele
 
 - `e/defn` supports docstrings, multiple arities, and variadic arguments. It rejects `:pre` and `:post` condition maps with "`:pre` and `:post` conditions not supported".
 - `e/fn` creates an Electric lambda. Give it a capitalized name when it is passed as an argument, such as `(e/fn Fields [form-fields] ...)`, and call it like any Electric function.
-- `e/call` (and its compatibility alias `e/$`) calls an Electric function explicitly, which is useful when the function value is held in a lowercase local: `(e/call f x)`.
+- `e/call` (and its alias `e/$`) calls an Electric function explicitly, which is useful when the function value is held in a lowercase local: `(e/call f x)`.
 - `e/declare` declares Electric dynamic vars for `binding`, for example `(e/declare !conn)` followed by `(binding [!conn (e/server (ensure-conn!))] ...)`.
 - Most Clojure and ClojureScript forms work inside Electric bodies, including `clojure.core`, `when`, `->>`, and destructuring. Statements do not necessarily run in source order, because evaluation follows the reactive graph. Macros that depend on runtime mutation or host concurrency (`future`, `push-thread-bindings`) do not work inside Electric code.
 
@@ -195,7 +194,7 @@ Electric values are tables: reactive sequences of zero or more items.
 
 ## Forms (`electric-forms5`)
 
-`hyperfiddle.electric-forms5` is the current forms namespace. `electric-forms3` is deprecated, and `forms4` and `forms0` were removed. Upstream describes the forms library as tricky to use and still in progress, so copy patterns from the upstream examples rather than inventing call shapes.
+Write forms with `hyperfiddle.electric-forms5`. Upstream describes the forms library as tricky to use and still in progress, so copy patterns from the upstream examples rather than inventing call shapes.
 
 - Controlled inputs that return their current value: `Input`, `Input*`, `Checkbox`, `Checkbox*`.
 - Transactional controls and containers: `Input!`, `Checkbox!`, `Form!` (with `:Parse` to turn dirty fields into a command), `SubmitButton!`, `DiscardButton!`, `Button!`, and `Service`.
@@ -236,20 +235,6 @@ The starter's `main.cljc` boots both sites from one function with the same arity
 
 The starter-app layout (`src`, `src-dev`, `src-prod`, `src-build`), the `deps.edn` aliases, the `shadow-cljs.edn` builds, the development loop and its login step, the production build and its version manifest, linting and formatting configuration, testing notes, and how to check for a newer release live in `references/project-workflows.md`. Load it on demand.
 
-## Electric v2 code
-
-Electric v2 (`com.hyperfiddle/electric` `v2-alpha-*`) received its last release in January 2024 and was licensed EPL-2.0. Its API differs from v3, so do not mix the two. When a project still uses v2, apply v2 forms consistently or migrate it to v3, and treat v2 tutorials and blog posts as v2-only.
-
-| Electric v2 | Electric v3 |
-|-------------|-------------|
-| `hyperfiddle.electric`, `hyperfiddle.electric-dom2` | `hyperfiddle.electric3`, `hyperfiddle.electric-dom3` |
-| Calling Electric functions with `new` or `(F.)` | Calling them with a capitalized name, `(F)`; `new` constructs host classes |
-| `e/def` | `e/declare` plus `binding` |
-| `dom/on` | `dom/On` |
-| `(e/for-by key [x xs] ...)` | `(e/for [x (e/diff-by key xs)] ...)` |
-| `e/offload`, `e/wrap` | `e/Offload` with a thunk |
-| `hyperfiddle.electric-ui4`, `electric-ui5` | `hyperfiddle.electric-forms5` |
-
 ## Formatting and linting
 
 Upstream asks for Tonsky two-space indentation, and the starter includes the configuration:
@@ -268,6 +253,10 @@ The catch-all `:indents` entry deliberately replaces cljfmt's default rules, whi
 The Hyperfiddle team asks people not to send them unverified AI-generated code to debug. Before suggesting that the user ask in `#hyperfiddle` on the Clojurians Slack or open an upstream issue, reduce the problem to a minimal reproduction based on the starter app, confirm it against the source of the Electric version in use, and let the user decide whether to post it.
 
 ## Gotchas
+
+### Electric projects pin ClojureScript 1.11.121
+
+With ClojureScript 1.12.145, the production client build of an Electric `v3-alpha-ca05cbc93` project succeeds, but the JVM cannot load any Electric namespace: `clojure -X:test` and `clojure -M:prod -m prod` stop with `NullPointerException` at `cljs.analyzer/lite-mode?`. shadow-cljs 3.x requires ClojureScript 1.12, so an Electric project also keeps shadow-cljs 2.26.2 (see `references/project-workflows.md`). ClojureScript 1.11.121 has no `^:async` / `await`, no `:refer-global` or `:require-global` `ns` clauses, no method values such as `String/.toUpperCase`, and no `cljs.proxy`, so do not apply the `clojurescript` skill's guidance for those features to Electric client code. Do not run `/cljs-upgrade` or raise either pin in an Electric project. Change them only together with an Electric release whose POM declares a newer ClojureScript, and rerun the JVM tests and the production build.
 
 ### REPL redefinition does not hot-reload Electric code
 

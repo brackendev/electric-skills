@@ -16,7 +16,7 @@ user-invocable: false
 
 # Code Lenses for Electric
 
-Layered on top of [clojure-lenses](https://github.com/brackendev/clojure-skills) (in `clojure-skills`) for host-neutral translations and [clojurescript-lenses](https://github.com/brackendev/clojurescript-skills) (in `clojurescript-skills`) for the JavaScript-host deltas. This skill records only the Electric-specific additions: reactive dataflow, the client and server site boundary, network transfer, tables and `e/amb`, `e/Token` transactions, `e/Offload`, lazy `let`, `electric-forms5`, and migration from Electric v2. The `electric` skill holds the API details these translations assume.
+Layered on top of [clojure-lenses](https://github.com/brackendev/clojure-skills) (in `clojure-skills`) for host-neutral translations and [clojurescript-lenses](https://github.com/brackendev/clojurescript-skills) (in `clojurescript-skills`) for the JavaScript-host deltas. This skill records only the Electric-specific additions: reactive dataflow, the client and server site boundary, network transfer, tables and `e/amb`, `e/Token` transactions, `e/Offload`, lazy `let`, and `electric-forms5`. The `electric` skill holds the API details these translations assume.
 
 The default code-lenses review set is `grug`, `honest-code`, `tidy-first`, and `parse-dont-validate`. `aposd` and `legacy-code` are opt-in (added with `+aposd` or `+legacy-code`, or invoked directly). The sections below apply when the corresponding lens is active. APOSD and Legacy Code translations are present so the lens can use them when explicitly invoked, but they are not part of the default trigger set.
 
@@ -62,7 +62,6 @@ When the [code-lenses](https://github.com/brackendev/code-lenses) plugin is acti
 
 ## Legacy Code
 
-- Electric v2 and v3 differ in namespaces (`hyperfiddle.electric` versus `hyperfiddle.electric3`), call syntax (`new` versus capitalized calls), lists (`e/for-by` versus `e/for` over `e/diff-by`), and background work (`e/offload` versus `e/Offload`). Migrate one namespace at a time and do not mix v2 and v3 forms in one file.
 - Seams in Electric programs: Electric dynamic vars declared with `e/declare` and set with `binding` (the starter binds `dom/node`, and the form example binds `!conn` and its debug flags), the `e/fn` arguments of generic components, and the Clojure helpers that Electric functions call.
 - Characterization tests belong on the Clojure helpers. The Electric test tools upstream uses (`hyperfiddle.rcf` and `electric-local-def3`) are not a documented public API, so test business logic in plain `clojure.test` and check the Electric code in the running app.
 - Effect sketching: changing what a server query returns ripples through every `e/diff-by` key function and every client expression that reads the rows. Keep the key function stable across the change, or rows remount.

@@ -7,7 +7,7 @@ description: >-
   check an Electric project, to run its tests, or to verify its production
   client build. Use --report to replace the formatting write with cljfmt
   check.
-argument-hint: "[lint|format|test|advanced|dry] [--report] [all]"
+argument-hint: "[lint|format|test|advanced|dry] [--report] [all|<path>|<glob>]"
 allowed-tools: Bash, Read, Grep, Glob
 user-invocable: true
 ---
@@ -38,7 +38,7 @@ Step keywords are combinable (for example, `/electric-fix lint test`). The `--re
 
 ## Mutation
 
-Only the `format` step writes source. It runs `clj -M:cljfmt fix` by default, rewriting files in place. With `--report`, the step runs `clj -M:cljfmt check`, which exits non-zero when files would change but does not write. The `lint`, `test`, and `dry` steps are pure-read of source regardless of `--report`. The `advanced` step deletes and rewrites the client build output under `resources/public/<app>/js/` and rewrites `resources/electric-manifest.edn` (build artifacts, not source), unaffected by `--report`. The `lint` step's bootstrap writes the upstream clj-kondo exports into `.clj-kondo/imports/` and the lint cache into `.clj-kondo/.cache/`. Those are tooling files, not source, and `--report` does not change that write.
+Only the `format` step writes source. It runs `cljfmt fix` through the runner the Format step selects, rewriting files in place. With `--report`, the step runs `cljfmt check` through the same runner, which exits non-zero when files would change but does not write. The `lint`, `test`, and `dry` steps are pure-read of source regardless of `--report`. The `advanced` step deletes and rewrites the client build output under `resources/public/<app>/js/` and rewrites `resources/electric-manifest.edn` (build artifacts, not source), unaffected by `--report`. The `lint` step's bootstrap writes the upstream clj-kondo exports into `.clj-kondo/imports/` and the lint cache into `.clj-kondo/.cache/`. Those are tooling files, not source, and `--report` does not change that write.
 
 This skill excludes vendored, generated, and dependency-locked paths from the file set it walks. The filter combines `.gitignore` matches and a hardcoded floor (`node_modules/`, `vendor/`, `third_party/`, `.bundle/`, `target/`, `build/`, `dist/`, `out/`, `.shadow-cljs/`, `cljd-out/`, `*.lock`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Gemfile.lock`, `Cargo.lock`, `poetry.lock`, `composer.lock`). The `advanced` step's writes are build artifacts produced by the build itself and are outside the source-mutation scope of the rule. Naming a vendored source path directly through `<path>` or `<glob>` bypasses the filter for that target. When the filter excludes any path, add a single "skipped N vendored or generated paths" line to the report. Under `--report`, list every skipped path. This follows Rule 4 of the electric-skills `CONVENTIONS.md`.
 
@@ -52,7 +52,7 @@ Bootstrap the upstream Electric clj-kondo exports before every lint. clj-kondo c
 
 ```bash
 mkdir -p .clj-kondo
-clj-kondo --copy-configs --dependencies --lint "$(clj -A:dev -Spath)"
+clj-kondo --copy-configs --dependencies --lint "$(clojure -A:dev -Spath)"
 ```
 
 `--dependencies` skips each dependency jar that clj-kondo has already linted, so a repeat run is fast. After an Electric upgrade, the new jar is linted and its exports are copied into `.clj-kondo/imports/hyperfiddle/electric/`.
@@ -76,36 +76,43 @@ Without the Electric exports, `e/defn`, `e/fn`, and `e/for` forms generate false
 
 ### 2. Format
 
-Without `--report`, run cljfmt to fix formatting. `cljfmt` covers `.clj`, `.cljs`, and `.cljc`:
+Run cljfmt with the first runner the project supports, checked in this order. Check for the alias before running it: without one, `clojure -M:cljfmt fix` runs `fix` as a script path and fails with "fix (No such file or directory)".
 
-```bash
-clj -M:cljfmt fix
+| Runner | When | Fix | Check |
+|--------|------|-----|-------|
+| Project alias | `deps.edn` defines a `:cljfmt` alias | `clojure -M:cljfmt fix` | `clojure -M:cljfmt check` |
+| Leiningen plugin | `project.clj` lists `dev.weavejester/lein-cljfmt` in `:plugins` | `lein cljfmt fix` | `lein cljfmt check` |
+| Standalone binary | `command -v cljfmt` succeeds | `cljfmt fix` | `cljfmt check` |
+| Clojure CLI tool | `clojure -Ttools list` lists a tool named `cljfmt` | `clojure -Tcljfmt fix` | `clojure -Tcljfmt check` |
+
+Without `--report`, run the Fix command. With `--report`, run the Check command, which writes nothing. cljfmt's default file pattern covers `.clj`, `.cljs`, `.cljc`, `.cljx`, and `.bb` files.
+
+Outside Leiningen, cljfmt formats `src`, `test`, and `project.clj` unless its configuration sets `:paths`. The starter keeps the application in `src` and has no `:paths` entry, so the default covers it and leaves `src-dev`, `src-prod`, and `src-build` alone, as the Lint step does. When `<path>` or `<glob>` arguments narrow the run, or when the project keeps its source elsewhere, pass the paths: as arguments to the alias, the binary, and `lein cljfmt` (`clojure -M:cljfmt fix src/my_app`), and as an option to the tool (`clojure -Tcljfmt fix :paths '["src/my_app"]'`). A path argument that does not exist stops cljfmt with "No such file:". Without path arguments, `lein cljfmt` formats the `:source-paths` and `:test-paths` directories that exist.
+
+cljfmt loads `.cljfmt.edn` or `cljfmt.edn` from the project directory or the nearest parent directory that has one. It skips `.cljfmt.clj` and `cljfmt.clj` with the warning "detected but --read-clj-config-files is not set. Ignoring config file.", because it reads those files as Clojure code, and falls back to an `.edn` file or to its defaults. When the project has only a `.clj` configuration file, ask the user before adding `--read-clj-config-files` to the alias or binary command. The tool cannot read `.clj` configuration files. Never report a project as failing because of its configuration file name. `lein cljfmt` reads the `:cljfmt` map in `project.clj`, and it reads `.cljfmt.edn` only when that map sets `:load-config-file? true`.
+
+When no runner is available, report `format: SKIPPED`, show the alias to add under `:aliases`, and name the cljfmt README (https://github.com/weavejester/cljfmt) for the other installation methods:
+
+```clojure
+:cljfmt {:replace-deps {dev.weavejester/cljfmt {:mvn/version "0.16.6"}}
+         :main-opts    ["-m" "cljfmt.main"]}
 ```
 
-With `--report`, run cljfmt in check mode (no writes):
-
-```bash
-clj -M:cljfmt check
-```
+`:replace-deps` keeps the project's own dependencies off the formatter's classpath, so a project dependency that conflicts with cljfmt or cannot be resolved does not stop the format step.
 
 Report pass if exit code is 0, fail otherwise. Show any formatting changes (under `fix`) or the diff (under `check`).
 
-The starter's `.cljfmt.edn` sets `:indents {#re ".*" [[:inner 0]]}`, which replaces every default cljfmt rule with Tonsky two-space indentation. Electric upstream asks for that style, so do not report the catch-all `:indents` entry as a misconfiguration. If the project has no `:cljfmt` alias, report `format: SKIPPED` and show the alias to add under `:aliases` rather than inventing a command:
-
-```clojure
-:cljfmt {:extra-deps {dev.weavejester/cljfmt {:mvn/version "0.16.6"}}
-         :main-opts  ["-m" "cljfmt.main"]}
-```
+The starter's `.cljfmt.edn` sets `:indents {#re ".*" [[:inner 0]]}`, which replaces every default cljfmt rule with Tonsky two-space indentation. Electric upstream asks for that style, so do not report the catch-all `:indents` entry as a misconfiguration.
 
 ### 3. Test
 
 Run the JVM test suite:
 
 ```bash
-clj -X:test
+clojure -X:test
 ```
 
-Use `clj -X:test` when the `:test` alias defines `:exec-fn`, and `clj -M:test` when it defines only `:main-opts`. If `deps.edn` has no `:test` alias, report `test: SKIPPED` and show the alias to add under `:aliases`:
+Use `clojure -X:test` when the `:test` alias defines `:exec-fn`, and `clojure -M:test` when it defines only `:main-opts`. If `deps.edn` has no `:test` alias, report `test: SKIPPED` and show the alias to add under `:aliases`:
 
 ```clojure
 :test {:extra-paths ["test"]
@@ -123,12 +130,12 @@ Requiring a namespace that contains Electric functions compiles them on the JVM,
 Run the production client build:
 
 ```bash
-clj -X:build:prod build-client
+clojure -X:build:prod build-client
 ```
 
 `build-client` (in `src-build/build.clj`) runs a shadow-cljs release build of the `:prod` build under `:advanced` optimizations. Report fail if the exit code is non-zero (the function asserts that shadow-cljs finished with `:done`), or if the output contains `WARNING:` lines from the Google Closure Compiler about property renaming or missing externs. Show the shadow-cljs summary line, such as `[:prod] Build completed. (165 files, 98 compiled, 0 warnings, 9.74s)`.
 
-- Run it with `clj -X:build:prod`, not `clj -T`. Electric's shadow-cljs compilation needs the application classpath.
+- Run it with `clojure -X:build:prod`, not `clojure -T`. Electric's shadow-cljs compilation needs the application classpath.
 - If `deps.edn` has no `:build` alias or `src-build/build.clj` has no `build-client` function, ask the user for the project's production build command. Do not guess.
 - The build reads its version from `git describe --tags --long --always --dirty`. If the output contains `fatal: not a git repository` (or `git describe` otherwise fails), the build still passes, but `resources/electric-manifest.edn` now records a `nil` version, which `prod/-main` rejects at startup. Note this in the report and tell the user to rebuild with `:version '"<version>"'` or from a committed checkout before running the prod server.
 - The starter needs no Node or npm, because shadow-cljs runs inside the JVM. A project that adds npm dependencies needs `npm install` first.
@@ -144,18 +151,18 @@ Determine the project's production source directories from its build configurati
 
 Scan the production source paths only and exclude test paths. If no configuration declares source paths, scan the source directories that exist in the repository, excluding any test directory. Do not assume `src`.
 
-Check that `deps.edn` defines a `:dry4clj` alias before running the scan. When it does not, report `SKIP` and show the alias to add under `:aliases`:
+Check that `deps.edn` defines a `:dry4clj` alias before running the scan. When it does not, report `SKIPPED` and show the alias to add under `:aliases`:
 
 ```clojure
 :dry4clj {:extra-deps {io.github.unclebob/dry4clj {:git/url "https://github.com/unclebob/dry4clj.git"
-                                                    :git/sha "5994ef2bcaaae8d12bcd0afb4f091ae09083228c"}}
-           :main-opts  ["-m" "dry4clj.core"]}
+                                                   :git/sha "5994ef2bcaaae8d12bcd0afb4f091ae09083228c"}}
+          :main-opts  ["-m" "dry4clj.core"]}
 ```
 
 Run dry4clj with EDN output over the resolved paths:
 
 ```bash
-clj -M:dry4clj --edn <source-paths...>
+clojure -M:dry4clj --edn <source-paths...>
 ```
 
 Do not pass `--threshold`, `--min-lines`, or `--min-nodes`. Scoping to production source removes the dominant noise, which is repeated test scaffolding. Tightening the score or size settings either hides real matches or has no effect on exact-structure duplicates.
@@ -167,11 +174,11 @@ dry4clj exits 0 after a completed scan, and the EDN output never prints a clean-
 | `PASS`   | `:candidates` is empty.                                                                                                     |
 | `REVIEW` | `:candidates` has one or more entries. List them and continue.                                                             |
 | `ERROR`  | The command fails or its output cannot be parsed. Report the cause, and do not report `PASS`. |
-| `SKIP`   | No production source path can be identified, or `deps.edn` defines no `:dry4clj` alias. |
+| `SKIPPED` | No production source path can be identified, or `deps.edn` defines no `:dry4clj` alias. |
 
 For `REVIEW`, sort candidates by exact matches first (`:score` equal to `1.0`), then by descending `min(:left-nodes, :right-nodes)`, then by descending `:score`. Report the scanned source paths, the candidate count, and the highest-priority candidates with their score, node counts, and both file ranges. Note that each candidate needs source inspection before extraction, and that test directories were excluded because repeated test scaffolding is often intentional.
 
-Upstream dry4clj scans `.clj`, `.cljc`, and `.cljs` files by default, so the `.cljc` Electric program and any single-platform helpers are all covered.
+Upstream dry4clj scans `.clj`, `.cljc`, `.cljs`, and `.cljd` files by default, so the `.cljc` Electric program and any single-platform helpers are all covered.
 
 ## Report
 
