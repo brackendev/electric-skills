@@ -24,7 +24,7 @@ Seven sibling APM packages. This package layers on top of [clojure-skills](https
 
 ## Install
 
-Install [APM](https://github.com/microsoft/apm) first if you don't already have it. Then, in a project:
+Install [APM](https://github.com/microsoft/apm) 0.34.0 first. Homebrew offers only the newest release, so remove a Homebrew copy with `brew uninstall apm` and install from PyPI with [uv](https://docs.astral.sh/uv/getting-started/installation/): `uv tool install apm-cli==0.34.0`. APM 0.35.0 is not supported because it can delete installed skill files ([microsoft/apm#3372](https://github.com/microsoft/apm/issues/3372)). Then, in a project:
 
 ```bash
 apm install brackendev/electric-skills --target all
