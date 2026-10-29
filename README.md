@@ -53,6 +53,7 @@ Update later with `apm update [-g]`. Remove with `apm uninstall brackendev/elect
 - [clj-kondo](https://github.com/clj-kondo/clj-kondo) for the lint steps in the user-invoked skills below.
 - The `electric-fix` dry step requires a [dry4clj](https://github.com/unclebob/dry4clj) `:dry4clj` alias in `deps.edn`. dry4clj is not published to Clojars, so the alias uses a Git coordinate. Without the alias, the dry step reports that it was skipped and shows the alias to add.
 - An Electric license that fits your use. Electric v3 is not open source: it is free for bootstrappers and non-commercial use and otherwise commercial (see the [license change announcement](https://tana.pub/lQwRvGRaQ7hM/electric-v3-license-change)). The first development build of a project prints a login link that you follow once. Production and CI builds do not ask for a login.
+- [Babashka](https://babashka.org) (`bb`) to run the `electric-rules` hook. Without it, the hook does nothing and prints a notice on standard error.
 
 ## Command guide
 
@@ -88,6 +89,16 @@ These skills activate from conversation context. They cannot be invoked directly
 |-------|----------|
 | **electric** | `.cljc` files requiring `hyperfiddle.electric3`, `hyperfiddle.electric-dom3`, `hyperfiddle.electric-forms5`, or `hyperfiddle.electric-ring-adapter3`; the forms `e/defn`, `e/fn`, `e/client`, `e/server`, `e/for`, `e/diff-by`, `e/watch`, `e/amb`, `e/Token`, `e/Offload`, `e/boot-server`, `e/boot-client`, `dom/On`, and `dom/props`; `deps.edn` containing `com.hyperfiddle/electric`; `shadow-cljs.edn` with the `hyperfiddle.electric.shadow-cljs.hooks3/reload-clj` build hook; or any mention of Electric Clojure, Electric v3, or Hyperfiddle. Covers Electric function definition and the capitalization rule, the three siting rules and network transfer, tables and `e/amb`, local state with atoms and `e/watch`, `electric-dom3`, events, transactions with `e/Token`, background work with `e/Offload`, forms, serialization, server setup, and the single-JVM development workflow. Defers to the [clojure](https://github.com/brackendev/clojure-skills) skill for host-neutral style, to the [clojurescript](https://github.com/brackendev/clojurescript-skills) skill for JavaScript interop and the CLJS workflow, and to the [clojure-jvm](https://github.com/brackendev/clojure-jvm-skills) skill for Java interop on the server and the JVM tooling workflow. The skill opens with Iron Laws (ELEC-1 through ELEC-5), rules that prevent runtime failures, frozen controls, and security holes. The agent does not write code that breaks them, and it reports a violation it finds in existing code before changing it. |
 | **electric-lenses** | Auto-triggers alongside the [code-lenses](https://github.com/brackendev/code-lenses) plugin in Electric work. Layers on top of `clojure-lenses` (in `clojure-skills`) and `clojurescript-lenses` (in `clojurescript-skills`) and records only the Electric-specific deltas: reactive dataflow in place of manual synchronization, the client and server site boundary, network transfer and serializability, tables and `e/amb`, `e/Token` transaction state, `e/Offload` as the effect edge, lazy `let` and statement ordering, and forms that parse at the server boundary. Covers the four default code-lenses philosophies (grug, Honest Code, Tidy First, Parse Don't Validate) and the two opt-in philosophies (APOSD, Legacy Code) that activate when their lens is added with `+aposd` or `+legacy-code` or invoked directly. |
+
+## Hooks
+
+The package includes one hook, `electric-rules`.
+
+### `electric-rules`
+
+Agents seldom load an auto-triggered skill on their own, so this hook gives the agent the ELEC-1 through ELEC-5 Iron Laws of the `electric` skill as text. In a `deps.edn` that names `com.hyperfiddle/electric`, it puts the condensed laws into the agent's context when a session starts, and again after `/clear` or a compaction, with an instruction to load the `electric` skill along with the `clojure`, `clojurescript`, and `clojure-jvm` skills. When the session starts outside such a project, for example in a parent directory, the hook delivers the laws on the first edit of a `.clj`, `.cljs`, `.cljc`, or `.edn` file in a matching project instead, once per session. The hook never edits a file. Without Babashka it does nothing and prints a notice on standard error.
+
+The hook has been run only under Claude Code, where it registers `SessionStart` and `PostToolUse`. The package ships empty Copilot and Cursor hook files, so APM writes no Copilot hook and no native Cursor hook. APM also installs the generic copy for Codex, Gemini CLI, Kiro, and Windsurf, where its effect has not been tested. OpenCode and Grok Build have no hook support.
 
 ## Contributing
 

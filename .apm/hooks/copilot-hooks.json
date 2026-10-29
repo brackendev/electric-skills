@@ -1,0 +1,5 @@
+{
+  "description": "Empty, so Copilot CLI receives no copy of electric-rules. The hook has been verified only on Claude Code.",
+  "version": 1,
+  "hooks": {}
+}

@@ -145,4 +145,4 @@ When adding or modifying a user-invocable skill, confirm each item before commit
 - [ ] Mutating skills that walk the workspace include a one-line Rule 4 reference in their `## Mutation` or `## Scope` section. Exempt skills (scaffolding, dependency upgrade, fixed targets, git operations, named paths) carry no reference.
 - [ ] Frontmatter `name` matches the skill's directory name.
 - [ ] `agents/openai.yaml` `default_prompt` references the current command name.
-- [ ] `CHANGELOG.md` records the change under `[Unreleased]` when the change is user-facing.
+- [ ] `CHANGELOG.md` records the change under the heading for the new `apm.yml` version when the change is user-facing.

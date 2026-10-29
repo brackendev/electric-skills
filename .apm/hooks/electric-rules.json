@@ -1,0 +1,25 @@
+{
+  "SessionStart": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "${PLUGIN_ROOT}/.apm/hooks/scripts/electric-rules.sh",
+          "timeout": 15
+        }
+      ]
+    }
+  ],
+  "PostToolUse": [
+    {
+      "matcher": "*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "${PLUGIN_ROOT}/.apm/hooks/scripts/electric-rules.sh",
+          "timeout": 15
+        }
+      ]
+    }
+  ]
+}

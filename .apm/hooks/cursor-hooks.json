@@ -1,0 +1,4 @@
+{
+  "description": "Empty, so APM writes no native Cursor hooks. An install fails when a hook reaches Cursor both natively and through its import of Claude Code settings.",
+  "hooks": {}
+}
