@@ -2,7 +2,7 @@
 
 This document defines the argument grammar, scope vocabulary, and mutation defaults that every user-invocable skill in `electric-skills` follows. A reader who learns one skill should be able to predict every other skill. New skills follow this document.
 
-These conventions apply to user-invocable skills (`user-invocable: true` in frontmatter). Model-invocable reference skills with no argument surface (currently `electric` and `electric-lenses`) carry no argument grammar and are exempt from rules 1 and 2.
+These conventions apply to user-invocable skills (`user-invocable: true` in frontmatter). Model-invocable reference skills with no argument surface (currently `electric`) carry no argument grammar and are exempt from rules 1 and 2.
 
 ## The four rules
 
@@ -86,7 +86,7 @@ A skill is classified by its actual behavior, not by its name. If the name and b
 |-------------------------|-----------------|------------------------|-------|
 | `/electric-fix`         | Mutating        | Yes                    | `format` step runs `cljfmt fix` by default, through the first cljfmt runner the project supports. `--report` replaces it with `cljfmt check`. `lint`, `test`, `advanced`, and `dry` are pure-read of source regardless. The `advanced` step writes the client build output under `resources/public/<app>/js/` and `resources/electric-manifest.edn` (build artifacts, not source). |
 
-The model-only reference skills (`electric`, `electric-lenses`) have no argument surface and are not classified here.
+The model-only reference skill (`electric`) has no argument surface and are not classified here.
 
 ## Section structure
 

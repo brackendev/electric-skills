@@ -1,8 +1,0 @@
-interface:
-  display_name: "Electric Lenses"
-  short_description: "Translate code-lenses philosophies into Electric-specific patterns. Defaults: grug, Honest Code, Tidy First, Parse Don't Validate; APOSD and Legacy Code are opt-in."
-  default_prompt: "Apply the relevant code-lenses translation to this Electric code."
-  brand_color: "#B7A4C2"
-
-policy:
-  allow_implicit_invocation: true

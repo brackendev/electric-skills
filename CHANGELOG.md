@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-10-31
+
+### Removed
+
+- The `electric-lenses` skill. The code-lenses package now detects the stack of the code under review and applies each lens to it through general rules, so a separate translation skill per language is no longer needed and its copy of code-lenses guidance can no longer drift. The `electric` skill already covers every Electric fact the lens skill stated.
+
 ## [0.1.6] - 2026-10-31
 
 ### Changed
