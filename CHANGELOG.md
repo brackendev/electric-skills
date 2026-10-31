@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-10-31
+
+### Changed
+
+- The README companion packages table and introduction add [babashka-skills](https://github.com/brackendev/babashka-skills), the new Babashka host package, which layers on clojure-skills.
+- `CONTRIBUTING.md` names only this package's brand color and no longer lists the color of every other Clojure-family package. The coordinator's drift check now confirms that each skill's `agents/openai.yaml` uses that color and that no two packages share one.
+- The `apm.yml` description no longer lists code-lenses translation, which this package stopped shipping when it removed its lenses skill.
+
 ## [0.1.7] - 2026-10-31
 
 ### Removed
