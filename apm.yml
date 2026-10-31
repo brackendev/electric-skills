@@ -1,5 +1,5 @@
 name: electric-skills
-version: 0.1.5
+version: 0.1.6
 description: Hyperfiddle Electric v3 full-stack reactive framework toolkit covering e/defn components, e/client and e/server site transfer, e/for tables over e/diff-by, e/watch state, e/Token transactions, e/Offload, the electric-dom3 and electric-forms5 APIs, the single-JVM shadow-cljs workflow, quality checks, and code-lenses translation. Layers on top of clojure-skills, clojurescript-skills, and clojure-jvm-skills.
 author: Bracken Spencer
 license: MIT

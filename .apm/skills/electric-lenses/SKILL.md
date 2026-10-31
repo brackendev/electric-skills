@@ -54,11 +54,13 @@ When the [code-lenses](https://github.com/brackendev/code-lenses) plugin is acti
 
 ## Honest Code
 
-- The site marker is honest about where an effect runs. A database call without an explicit `e/server` relies on dynamic siting, which is correct but hides from the reader where the call runs. Site platform effects explicitly.
-- `e/Token` exposes transaction state as a value: ready (`nil`), busy (non-nil), and rejected (an error). Disable the control while the token is busy, and spend the token exactly once with `(t)` or `(t err)`. Hiding the state machine behind a callback makes the busy and error states invisible.
-- `e/Offload` is the effect edge for blocking work. The thunk is a Clojure function, so Electric code cannot leak into it, and the pending state is `(e/amb)`, which dependents see as "no value yet" rather than a fake default.
-- `(reset! !s (Input s))` is an honest cycle through a side effect. It is a statement that runs when its argument changes, not a hidden callback.
-- Let It Crash, Electric edition: Electric code cannot contain `try`, so do not wrap Electric bodies to swallow failures. Catch in the Clojure thunk, return a value that names the outcome, and show it to the user through the token's error channel.
+Cite principles by number, as `clojure-lenses` describes. Electric adds these translations:
+
+- **P03 (I/O at the Boundary):** The site marker shows where an effect runs. A database call without an explicit `e/server` relies on dynamic siting, which is correct but hides from the reader where the I/O happens. Site platform effects explicitly.
+- **P24 (A Fault Travels in the Return Value):** `e/Token` exposes transaction state as a value: ready (`nil`), busy (non-nil), and rejected (an error). Disable the control while the token is busy, and spend the token exactly once with `(t)` or `(t err)`. Hiding the state machine behind a callback makes the busy and error states invisible.
+- **P03 and P15 (No Implicit Defaults):** `e/Offload` is the effect edge for blocking work. The thunk is a Clojure function, so Electric code cannot leak into it, and the pending state is `(e/amb)`, which dependents see as "no value yet" rather than a made-up default.
+- **P22 (Declarative Equivalents Over Framework Lifecycle Hooks):** `(reset! !s (Input s))` is a statement that runs when its argument changes, declared where it is used, not a lifecycle callback.
+- **P08 and P24:** Electric code cannot contain `try`, so do not wrap Electric bodies to swallow failures. Catch in the Clojure thunk, which is the boundary, return a value that names the outcome, and show it to the user through the token's error channel.
 
 ## Legacy Code
 
